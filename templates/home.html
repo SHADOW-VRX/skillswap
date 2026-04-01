@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Skillswap.SRMU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/home" class="logo">Skillswap.<span>SRMU</span></a>
+            <ul class="nav-links">
+                <li><a href="/home" class="active">Home</a></li>
+                <li><a href="/matches">Matches</a></li>
+                <li><a href="/wallet">Wallet</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode"></button>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">{{ session.user_name }}</span>
+                <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="dashboard">
+        <div class="dashboard-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="card">
+                    <ul class="sidebar-menu">
+                        <li><a href="/home" class="active">🏠 Home</a></li>
+                        <li><a href="/matches">🤝 Matches</a></li>
+                        <li><a href="/wallet">💳 Wallet</a></li>
+                        <li><a href="/profile">👤 Profile</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Welcome Header -->
+                <div class="page-header">
+                    <h1>Welcome back, {{ user.name }}! 👋</h1>
+                    <p style="color: var(--text-muted);">Here's what's happening in your skill swap community</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-icon purple">💰</div>
+                        <div class="stat-info">
+                            <h3>{{ user.credits }}</h3>
+                            <p>Credits Balance</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon green">⭐</div>
+                        <div class="stat-info">
+                            <h3>{{ "%.1f"|format(user.rating) }}</h3>
+                            <p>Your Rating</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon pink">🤝</div>
+                        <div class="stat-info">
+                            <h3>{{ matches|length }}</h3>
+                            <p>New Matches</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Section -->
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="user-search" class="search-input" placeholder="Search users by skill (e.g., Python, Guitar, Spanish...)">
+                </div>
+                <div id="search-results" class="search-results matches-grid"></div>
+
+                <!-- Top Matches Section -->
+                <h2 style="margin: 2rem 0 1rem;">🔥 Top Skill Matches</h2>
+                {% if matches %}
+                <div class="matches-grid">
+                    {% for match in matches[:4] %}
+                    <div class="card match-card">
+                        <div class="card-header">
+                            <div class="card-avatar">{{ match.user.name[0].upper() }}</div>
+                            <div>
+                                <div class="card-title">{{ match.user.name }}</div>
+                                <div class="card-subtitle">
+                                    {% if match.user.rating > 0 %}
+                                        {% for i in range(match.user.rating|int) %}⭐{% endfor %}
+                                    {% else %}
+                                        No ratings yet
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <span class="match-score {{ 'high' if match.score >= 70 else 'medium' if match.score >= 40 else 'low' }}">
+                                {{ match.score }}% Match
+                            </span>
+                        </div>
+                        
+                        <ul class="match-reasons">
+                            {% for reason in match.reasons %}
+                            <li>{{ reason }}</li>
+                            {% endfor %}
+                        </ul>
+                        
+                        <div class="match-actions">
+                            <button class="btn btn-primary btn-sm" onclick="connectUser({{ match.user.id }})">Connect</button>
+                            <a href="/profile" class="btn btn-outline btn-sm">View Profile</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card empty-state">
+                    <div class="empty-state-icon">🤔</div>
+                    <h3>No matches yet</h3>
+                    <p>Add more skills to your profile to find matches!</p>
+                    <a href="/profile" class="btn btn-primary mt-2">Update Profile</a>
+                </div>
+                {% endif %}
+
+                <!-- Popular Skills Section -->
+                {% if popular_skills %}
+                <h2 style="margin: 2rem 0 1rem;">📊 Popular Skills</h2>
+                <div class="card">
+                    <div class="skills-container">
+                        {% for skill in popular_skills %}
+                        <span class="skill-tag skill-have">
+                            {{ skill.skill_name }} ({{ skill.count }} users)
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- My Skills Section -->
+                <h2 style="margin: 2rem 0 1rem;">🎯 Your Skills</h2>
+                <div class="card">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="margin-bottom: 0.75rem; color: var(--success);">✓ You Can Teach</h4>
+                        <div class="skills-container">
+                            {% set has_skills = user_skills|selectattr('skill_type', 'equalto', 'have')|list %}
+                            {% if has_skills %}
+                                {% for skill in has_skills %}
+                                <span class="skill-tag skill-have">{{ skill.skill_name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: var(--text-muted); font-size: 0.875rem;">No skills added yet. Go to your profile to add skills!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 0.75rem; color: var(--primary);">→ You Want to Learn</h4>
+                        <div class="skills-container">
+                            {% set want_skills = user_skills|selectattr('skill_type', 'equalto', 'want')|list %}
+                            {% if want_skills %}
+                                {% for skill in want_skills %}
+                                <span class="skill-tag skill-want">{{ skill.skill_name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <p style="color: var(--text-muted); font-size: 0.875rem;">No learning goals yet. Go to your profile to add skills!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul>
+            <li>
+                <a href="/home" class="active">
+                    <span class="mobile-nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="/matches">
+                    <span class="mobile-nav-icon">🤝</span>
+                    <span>Matches</span>
+                </a>
+            </li>
+            <li>
+                <a href="/wallet">
+                    <span class="mobile-nav-icon">💳</span>
+                    <span>Wallet</span>
+                </a>
+            </li>
+            <li>
+                <a href="/profile">
+                    <span class="mobile-nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

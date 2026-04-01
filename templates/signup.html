@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Skillswap.SRMU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="auth-container">
+        <div class="card auth-card">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join the skill swapping community today</p>
+            </div>
+
+            <form method="POST" action="/signup">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" placeholder="Create a password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Skills You Can Teach (Press Enter after each)</label>
+                    <div class="skills-input-container">
+                        <input type="text" id="skills-have-input" placeholder="e.g., Python, Guitar, Photography">
+                    </div>
+                    <input type="hidden" name="skills_have" id="skills-have-hidden">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Skills You Want to Learn (Press Enter after each)</label>
+                    <div class="skills-input-container">
+                        <input type="text" id="skills-want-input" placeholder="e.g., Spanish, Web Design, Cooking">
+                    </div>
+                    <input type="hidden" name="skills_want" id="skills-want-hidden">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <p style="color: var(--text-muted);">
+                    Already have an account? 
+                    <a href="/login" style="color: var(--primary); text-decoration: none; font-weight: 600;">Login</a>
+                </p>
+            </div>
+
+            <div class="text-center mt-2">
+                <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem;">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

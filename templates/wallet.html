@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - Skillswap.SRMU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/home" class="logo">Skillswap.<span>SRMU</span></a>
+            <ul class="nav-links">
+                <li><a href="/home">Home</a></li>
+                <li><a href="/matches">Matches</a></li>
+                <li><a href="/wallet" class="active">Wallet</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode"></button>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">{{ session.user_name }}</span>
+                <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="dashboard">
+        <div class="dashboard-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="card">
+                    <ul class="sidebar-menu">
+                        <li><a href="/home">🏠 Home</a></li>
+                        <li><a href="/matches">🤝 Matches</a></li>
+                        <li><a href="/wallet" class="active">💳 Wallet</a></li>
+                        <li><a href="/profile">👤 Profile</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="page-header">
+                    <h1>💳 Your Wallet</h1>
+                    <p style="color: var(--text-muted);">Manage your credits and view transaction history</p>
+                </div>
+
+                <!-- Balance Card -->
+                <div class="card wallet-balance">
+                    <p class="balance-label">Available Credits</p>
+                    <div class="balance-amount">{{ user.credits }}</div>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">
+                        1 credit = 1 skill session
+                    </p>
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-primary" onclick="showNotification('Start session feature coming soon!', 'success')">
+                            Start Teaching Session
+                        </button>
+                        <button class="btn btn-success" onclick="showNotification('Earn credits by teaching others!', 'success')">
+                            Learn How to Earn
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-icon purple">💰</div>
+                        <div class="stat-info">
+                            <h3>{{ user.credits }}</h3>
+                            <p>Current Balance</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon green">📈</div>
+                        <div class="stat-info">
+                            <h3>{{ transactions|selectattr('teacher_id', 'equalto', user.id)|list|length }}</h3>
+                            <p>Sessions Taught</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon pink">📚</div>
+                        <div class="stat-info">
+                            <h3>{{ transactions|selectattr('learner_id', 'equalto', user.id)|list|length }}</h3>
+                            <p>Sessions Learned</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="card transactions-list">
+                    <h3 style="margin-bottom: 1.5rem;">Transaction History</h3>
+                    
+                    {% if transactions %}
+                        {% for transaction in transactions %}
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                {% if transaction.teacher_id == user.id %}
+                                    <h4>Taught {{ transaction.skill_taught }}</h4>
+                                    <p>To {{ transaction.learner_name }} • {{ transaction.created_at[:10] }}</p>
+                                {% else %}
+                                    <h4>Learned {{ transaction.skill_taught }}</h4>
+                                    <p>From {{ transaction.teacher_name }} • {{ transaction.created_at[:10] }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="transaction-credits {{ 'earned' if transaction.teacher_id == user.id else 'spent' }}">
+                                {% if transaction.teacher_id == user.id %}
+                                    +{{ transaction.credits_exchanged }}
+                                {% else %}
+                                    -{{ transaction.credits_exchanged }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <p>No transactions yet</p>
+                            <p style="font-size: 0.875rem; margin-top: 0.5rem;">Start teaching or learning to see transactions here!</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- How Credits Work -->
+                <div class="card" style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">How Credits Work</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div>
+                            <h4 style="color: var(--success); margin-bottom: 0.5rem;">✓ Earning Credits</h4>
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">
+                                Teach other users skills you know. Each completed session earns you 1 credit.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary); margin-bottom: 0.5rem;">→ Spending Credits</h4>
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">
+                                Learn new skills from others. Each learning session costs 1 credit.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--secondary); margin-bottom: 0.5rem;">⭐ Bonus Credits</h4>
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">
+                                Get high ratings from students? Earn bonus credits as rewards!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul>
+            <li>
+                <a href="/home">
+                    <span class="mobile-nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="/matches">
+                    <span class="mobile-nav-icon">🤝</span>
+                    <span>Matches</span>
+                </a>
+            </li>
+            <li>
+                <a href="/wallet" class="active">
+                    <span class="mobile-nav-icon">💳</span>
+                    <span>Wallet</span>
+                </a>
+            </li>
+            <li>
+                <a href="/profile">
+                    <span class="mobile-nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Skillswap.SRMU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/home" class="logo">Skillswap.<span>SRMU</span></a>
+            <ul class="nav-links">
+                <li><a href="/home">Home</a></li>
+                <li><a href="/matches">Matches</a></li>
+                <li><a href="/wallet">Wallet</a></li>
+                <li><a href="/profile" class="active">Profile</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode"></button>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">{{ session.user_name }}</span>
+                <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="dashboard">
+        <div class="dashboard-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="card">
+                    <ul class="sidebar-menu">
+                        <li><a href="/home">🏠 Home</a></li>
+                        <li><a href="/matches">🤝 Matches</a></li>
+                        <li><a href="/wallet">💳 Wallet</a></li>
+                        <li><a href="/profile" class="active">👤 Profile</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="page-header">
+                    <h1>Your Profile</h1>
+                    <p style="color: var(--text-muted);">Manage your skills and account information</p>
+                </div>
+
+                <!-- Profile Header -->
+                <div class="card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">{{ user.name[0].upper() }}</div>
+                        <div class="profile-info">
+                            <h2>{{ user.name }}</h2>
+                            <p style="color: var(--text-muted); margin-bottom: 0.75rem;">{{ user.email }}</p>
+                            <div class="profile-meta">
+                                <span>💰 {{ user.credits }} credits</span>
+                                <span>⭐ {{ "%.1f"|format(user.rating) }} rating ({{ user.total_ratings }} reviews)</span>
+                                <span>📅 Joined {{ user.created_at[:10] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills You Can Teach -->
+                <div class="skills-section">
+                    <div class="card">
+                        <h3>✓ Skills You Can Teach</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">
+                            These are skills other users can learn from you. You'll earn credits when you teach them!
+                        </p>
+                        
+                        <div class="skills-container" id="skills-have-container">
+                            {% for skill in skills_have %}
+                            <span class="skill-tag skill-have">
+                                {{ skill.skill_name }}
+                                <span class="skill-remove" onclick="removeSkill({{ skill.id }})">×</span>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="add-skill-form">
+                            <input type="text" id="new-have-skill" class="form-input" placeholder="Add a skill you can teach">
+                            <button type="button" id="add-have-skill" class="btn btn-success">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills You Want to Learn -->
+                <div class="skills-section">
+                    <div class="card">
+                        <h3>→ Skills You Want to Learn</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">
+                            These are skills you want to learn from other users. You'll spend credits to learn them!
+                        </p>
+                        
+                        <div class="skills-container" id="skills-want-container">
+                            {% for skill in skills_want %}
+                            <span class="skill-tag skill-want">
+                                {{ skill.skill_name }}
+                                <span class="skill-remove" onclick="removeSkill({{ skill.id }})">×</span>
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="add-skill-form">
+                            <input type="text" id="new-want-skill" class="form-input" placeholder="Add a skill you want to learn">
+                            <button type="button" id="add-want-skill" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Stats -->
+                <div class="skills-section">
+                    <div class="card">
+                        <h3>📊 Your Stats</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                            <div class="text-center">
+                                <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ skills_have|length }}</div>
+                                <p style="color: var(--text-muted); font-size: 0.875rem;">Skills to Teach</p>
+                            </div>
+                            <div class="text-center">
+                                <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ skills_want|length }}</div>
+                                <p style="color: var(--text-muted); font-size: 0.875rem;">Skills to Learn</p>
+                            </div>
+                            <div class="text-center">
+                                <div style="font-size: 2rem; font-weight: 700; color: var(--success);">{{ user.credits }}</div>
+                                <p style="color: var(--text-muted); font-size: 0.875rem;">Credits Balance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul>
+            <li>
+                <a href="/home">
+                    <span class="mobile-nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="/matches">
+                    <span class="mobile-nav-icon">🤝</span>
+                    <span>Matches</span>
+                </a>
+            </li>
+            <li>
+                <a href="/wallet">
+                    <span class="mobile-nav-icon">💳</span>
+                    <span>Wallet</span>
+                </a>
+            </li>
+            <li>
+                <a href="/profile" class="active">
+                    <span class="mobile-nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

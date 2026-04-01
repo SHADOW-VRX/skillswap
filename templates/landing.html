@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skillswap.SRMU - Exchange Skills, Earn Credits</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">Skillswap.<span>SRMU</span></a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode"></button>
+                <a href="/login" class="btn btn-secondary btn-sm">Login</a>
+                <a href="/signup" class="btn btn-primary btn-sm">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Hero Section -->
+    <section class="landing">
+        <div class="hero">
+            <div class="container">
+                <h1>Exchange Skills, <br>Earn Credits</h1>
+                <p>Connect with students who want to learn what you know,<br>and learn what they know in return.</p>
+                <a href="/signup" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2rem;">Get Started Free</a>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features" id="features">
+            <div class="container">
+                <h2 class="text-center" style="font-size: 2rem; margin-bottom: 1rem;">Why Choose SkillSwap?</h2>
+                <p class="text-center" style="color: var(--text-muted);">A platform designed for students, by students</p>
+                
+                <div class="features-grid">
+                    <div class="card feature-card">
+                        <div class="feature-icon">🤝</div>
+                        <h3>AI Matching</h3>
+                        <p>Our smart algorithm finds the perfect skill partners based on what you know and what you want to learn.</p>
+                    </div>
+                    
+                    <div class="card feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>Credit System</h3>
+                        <p>Earn credits by teaching others, spend credits to learn new skills. No money needed!</p>
+                    </div>
+                    
+                    <div class="card feature-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>Rating System</h3>
+                        <p>Rate your learning experience and build your reputation as a reliable skill partner.</p>
+                    </div>
+                    
+                    <div class="card feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Mobile Friendly</h3>
+                        <p>Access SkillSwap anywhere, anytime. Fully responsive design for all devices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="features" id="how-it-works" style="background: var(--surface);">
+            <div class="container">
+                <h2 class="text-center" style="font-size: 2rem; margin-bottom: 3rem;">How It Works</h2>
+                
+                <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="text-center">
+                        <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; margin: 0 auto 1rem;">1</div>
+                        <h3>Create Profile</h3>
+                        <p style="color: var(--text-muted);">Sign up and list skills you can teach and skills you want to learn.</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; margin: 0 auto 1rem;">2</div>
+                        <h3>Get Matched</h3>
+                        <p style="color: var(--text-muted);">Our AI finds perfect matches based on complementary skills.</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; margin: 0 auto 1rem;">3</div>
+                        <h3>Connect & Learn</h3>
+                        <p style="color: var(--text-muted);">Schedule sessions, exchange skills, and earn credits.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="features">
+            <div class="container text-center">
+                <h2 style="font-size: 2rem; margin-bottom: 1rem;">Ready to Start Learning?</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Join thousands of students already exchanging skills on SkillSwap.</p>
+                <a href="/signup" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2rem;">Create Free Account</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

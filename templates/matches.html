@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches - Skillswap.SRMU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/home" class="logo">Skillswap.<span>SRMU</span></a>
+            <ul class="nav-links">
+                <li><a href="/home">Home</a></li>
+                <li><a href="/matches" class="active">Matches</a></li>
+                <li><a href="/wallet">Wallet</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode"></button>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">{{ session.user_name }}</span>
+                <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="dashboard">
+        <div class="dashboard-grid">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="card">
+                    <ul class="sidebar-menu">
+                        <li><a href="/home">🏠 Home</a></li>
+                        <li><a href="/matches" class="active">🤝 Matches</a></li>
+                        <li><a href="/wallet">💳 Wallet</a></li>
+                        <li><a href="/profile">👤 Profile</a></li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="page-header">
+                    <h1>🤝 Your Skill Matches</h1>
+                    <p style="color: var(--text-muted);">AI-powered matching based on complementary skills</p>
+                </div>
+
+                {% if matches %}
+                <div class="matches-grid">
+                    {% for match in matches %}
+                    <div class="card match-card">
+                        <div class="card-header">
+                            <div class="card-avatar">{{ match.user.name[0].upper() }}</div>
+                            <div>
+                                <div class="card-title">{{ match.user.name }}</div>
+                                <div class="card-subtitle">
+                                    {% if match.user.rating > 0 %}
+                                        {% for i in range(match.user.rating|int) %}⭐{% endfor %}
+                                        ({{ match.user.total_ratings }} reviews)
+                                    {% else %}
+                                        New user - no ratings yet
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <span class="match-score {{ 'high' if match.score >= 70 else 'medium' if match.score >= 40 else 'low' }}">
+                                {{ match.score }}% Match
+                            </span>
+                        </div>
+                        
+                        <ul class="match-reasons">
+                            {% for reason in match.reasons %}
+                            <li>{{ reason }}</li>
+                            {% endfor %}
+                        </ul>
+                        
+                        <div style="margin: 1rem 0;">
+                            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Their Skills:</p>
+                            <div class="skills-container">
+                                {% for skill in match.user.have %}
+                                <span class="skill-tag skill-have">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 1rem 0;">
+                            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">They Want to Learn:</p>
+                            <div class="skills-container">
+                                {% for skill in match.user.want %}
+                                <span class="skill-tag skill-want">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="match-actions">
+                            <button class="btn btn-primary" onclick="connectUser({{ match.user.id }})">Connect</button>
+                            <button class="btn btn-outline btn-sm" onclick="showNotification('Message feature coming soon!', 'success')">Message</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>No matches found</h3>
+                    <p>Add more skills to your profile to find compatible learning partners.</p>
+                    <a href="/profile" class="btn btn-primary mt-2">Update Your Skills</a>
+                </div>
+                {% endif %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <ul>
+            <li>
+                <a href="/home">
+                    <span class="mobile-nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="/matches" class="active">
+                    <span class="mobile-nav-icon">🤝</span>
+                    <span>Matches</span>
+                </a>
+            </li>
+            <li>
+                <a href="/wallet">
+                    <span class="mobile-nav-icon">💳</span>
+                    <span>Wallet</span>
+                </a>
+            </li>
+            <li>
+                <a href="/profile">
+                    <span class="mobile-nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
